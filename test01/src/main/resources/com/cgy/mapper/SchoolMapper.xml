@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：绑定/映射的对应接口的全路径名 -->
+<mapper namespace="com.cgy.mapper.SchoolMapper">
+    <!--id:语句的唯一标识
+    parameterType:传递的参数类型
+    resultType:配置返回的结果类型-->
+    <select id="findSchoolWithCourseById" parameterType="java.util.Arrays" resultMap="findSchoolWithCourseByIdResult">
+        SELECT *,c.id cid
+        from s_school s,course c
+        WHERE s.id=c.sid AND s.id in
+        <foreach collection="array" open="(" separator="," close=")" item="sid">
+            #{sid}
+        </foreach>
+    </select>
+    <resultMap id="findSchoolWithCourseByIdResult" type="school">
+        <id property="id" column="sid"></id>
+        <result column="schoolname" property="schoolName"></result>
+        <collection property="courseList" ofType="course">
+            <id property="id" column="cid"></id>
+            <result property="name" column="name"></result>
+            <result property="hours" column="hours"></result>
+        </collection>
+    </resultMap>
+
+</mapper>

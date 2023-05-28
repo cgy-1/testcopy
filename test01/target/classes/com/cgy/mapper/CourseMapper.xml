@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：绑定/映射的对应接口的全路径名 -->
+<mapper namespace="com.cgy.mapper.CourseMapper">
+    <!--id:语句的唯一标识
+    parameterType:传递的参数类型
+    resultType:配置返回的结果类型-->
+
+
+    <!--需求1：查询 id=2 的课程信息-->
+    <select id="findCourseById" parameterType="int" resultMap="findCourseById">
+        SELECT *,course.id cid,s_school.id shoolid
+        FROM course,s_school
+        WHERE course.sid=s_school.id AND course.id=#{id}
+    </select>
+    <resultMap id="findCourseById" type="Course">
+        <id property="id" column="cid"></id>
+        <result property="name" column="name"></result>
+        <result property="hours" column="hours"></result>
+        <association property="school" javaType="school">
+            <id property="id" column="sid"></id>
+            <result property="schoolName" column="schoolname"></result>
+        </association>
+    </resultMap>
+
+    <!--需求2：查询出所有计算机学院开设的课程信息 ；-->
+    <select id="findCourseBySchool" parameterType="String" resultMap="findCourseBySchool">
+        SELECT *,course.id cid,s_school.id shoolid
+        FROM course,s_school
+        WHERE course.sid=s_school.id AND schoolname=#{schoolname}
+    </select>
+    <resultMap id="findCourseBySchool" type="Course">
+        <id property="id" column="cid"></id>
+        <result property="name" column="name"></result>
+        <result property="hours" column="hours"></result>
+        <association property="school" javaType="school">
+            <id property="id" column="sid"></id>
+            <result property="schoolName" column="schoolname"></result>
+        </association>
+    </resultMap>
+
+    <!--需求3：将 id=4 这⻔课程的课时数修改为 32+8=40；
+        方法1：根据id对程的课时数修改
+    -->
+    <update id="updateById" parameterType="Integer"  >
+        UPDATE course
+        SET hours=hours+8
+        WHERE id=#{id}
+    </update>
+    <!--方法2：直接修改-->
+    <update id="updateById2"   >
+        UPDATE course
+        SET hours=40
+        WHERE id=2
+    </update>
+
+    <!--需求4：插⼊⼀条新的课程记录： names=”⼤数据存储“，hours=32，schools =1；-->
+    <insert id="insertCourse" >
+        insert into course(name,hours,sid) values('大数据存储',32,1)
+    </insert>
+
+    <!--需求5：输出所有的学院开设的课程信息。-->
+    <select id="findAllCourse" parameterType="java.util.Arrays" resultMap="findCourseBySchool2">
+        SELECT *,course.id cid,s_school.id shoolid
+        FROM course,s_school
+        WHERE course.sid=s_school.id AND s_school.id in
+        <foreach collection="array" item="sid" separator="," close=")" open="(">
+            #{sid}
+        </foreach>
+    </select>
+    <resultMap id="findCourseBySchool2" type="Course">
+        <id property="id" column="cid"></id>
+        <result property="name" column="name"></result>
+        <result property="hours" column="hours"></result>
+        <association property="school" javaType="school">
+            <id property="id" column="sid"></id>
+            <result property="schoolName" column="schoolname"></result>
+        </association>
+    </resultMap>
+
+</mapper>
